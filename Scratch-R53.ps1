@@ -41,7 +41,7 @@ $parms = @{
 }
 
 # origin record splat
-$parms = @{
+$originSplat = @{
   'HostedZoneId' = $strZoneId;
   'Type' = 'A';
   'Value' = '52.52.56.150';
@@ -52,7 +52,7 @@ $parms = @{
 }
 
 # alias record splat
-$parms = @{
+$aliasSplat = @{
   'HostedZoneId' = $strZoneId;
   'Type' = 'A';
   'Value' = 'web1-west-origin.ibuildirun.com.';
@@ -64,6 +64,47 @@ $parms = @{
 }
 
 
-.\c084fbde81968389d6d1b9e1632e69fd\Manage-R53RecordSet.ps1 @parms -Verbose
+.\Manage-R53RecordSet.ps1 @parms -Verbose
+
+# let's do some loops
+$originRecords = @{}
+$originRecords['web1-west-origin'] = '54.177.181.82'
+$originRecords['web2-west-origin'] = '52.52.56.150'
+$originRecords['web1-east-origin'] = '34.236.99.158'
+$originRecords['web2-east-origin'] = '35.170.193.70'
+$originRecords
+
+foreach ($i in $originRecords.GetEnumerator()) {
+  Write-Host
+  Write-Host $i.Key $i.Value
+  Write-Host $('=' * 50 )
+  $originSplat['Value'] = $i.Value
+  $originSplat['Name'] = $i.Key
+  $originSplat
+  .\Manage-R53RecordSet.ps1 @originSplat -Verbose
+}
+
+# needed a special ordered hashtable
+$aliasRecords = New-Object System.Collections.Specialized.OrderedDictionary
+$aliasRecords.add('Primary','web1-west-origin.ibuildirun.com.')
+$aliasRecords.add('Secondary','web2-west-origin.ibuildirun.com.')
+$aliasRecords.add('tertiary','web1-east-origin.ibuildirun.com.')
+$aliasRecords.add('www','Primary.ibuildirun.com.')
+
+foreach ($i in $aliasRecords.GetEnumerator()) {
+  Write-Host
+  Write-Host $i.Key $i.Value
+  Write-Host $('=' * 50 )
+  $aliasSplat['Value'] = $i.Value
+  $aliasSplat['Name'] = $i.Key
+  $aliasSplat
+  .\Manage-R53RecordSet.ps1 @aliasSplat -Verbose  
+}
+
+# manually route traffic to a fail over server
+$aliasSplat['Value'] = 'Secondary'
+$aliasSplat['Name'] = 'www'
+$aliasSplat
+.\Manage-R53RecordSet.ps1 @aliasSplat -Verbose  
 
 
