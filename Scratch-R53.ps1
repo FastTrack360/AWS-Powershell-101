@@ -1,16 +1,19 @@
 ﻿# route53
 
+
+
+
+
 # tell what domain name you want, include the root dot (example: ibuildirun.com.)
-$zoneName = "ibuildirun.com."
+$zoneName = ".rockportapp.com."
 $zoneId = Get-R53HostedZoneList |  Where-Object {$_.Name -eq $zoneName}
 $zoneId | get-member
 $strZoneId = $zoneId.Id.ToString().Replace('/hostedzone/', '')
 $strZoneId
 
 
-
 $rRecords = Get-R53ResourceRecordSet -HostedZoneId $strZoneId
-$rRecord = $rRecords.ResourceRecordSets | Where-Object { $_.Name -eq 'web2-west-origin.ibuildirun.com.' }
+$rRecord = $rRecords.ResourceRecordSets | Where-Object { $_.Name -eq '{r53test.rockportapp.com.' }
 $rRecord.SetIdentifier
 
 # test with the alias object
@@ -24,7 +27,7 @@ $parms = @{
   'HostedZoneId' = $strZoneId;
   'Type' = 'A';
   'Value' = '52.52.56.150';
-  'Name' = 'web2-west-origin';       # just the subdomain/hostname
+  'Name' = '<hostname>';             # just the subdomain/hostname
   'AliasRecord' = '';
   'Weight' = '';
   'HealthCheckId' = '';
@@ -45,7 +48,7 @@ $originSplat = @{
   'HostedZoneId' = $strZoneId;
   'Type' = 'A';
   'Value' = '52.52.56.150';
-  'Name' = 'web2-west-origin';
+  'Name' = '<hostname>';
   'Ttl' = 30;
   'Comment' = '';
   'Force' = $true
@@ -55,8 +58,8 @@ $originSplat = @{
 $aliasSplat = @{
   'HostedZoneId' = $strZoneId;
   'Type' = 'A';
-  'Value' = 'web1-west-origin.ibuildirun.com.';
-  'Name' = 'onemoretest';
+  'Value' = '<host.exampleFQDN.com.>';
+  'Name' = 'Primary';
   'AliasRecord' = $true;
   'EvaluateTargetHealth' = $false;
   'Comment' = '';
@@ -68,10 +71,9 @@ $aliasSplat = @{
 
 # let's do some loops
 $originRecords = @{}
-$originRecords['web1-west-origin'] = '54.177.181.82'
-$originRecords['web2-west-origin'] = '52.52.56.150'
-$originRecords['web1-east-origin'] = '34.236.99.158'
-$originRecords['web2-east-origin'] = '35.170.193.70'
+$originRecords['r53test-web1'] = '174.143.127.78'
+$originRecords['r53test-web2'] = '174.143.127.79'
+$originRecords['r53test-web3'] = '148.62.46.183'
 $originRecords
 
 foreach ($i in $originRecords.GetEnumerator()) {
@@ -86,10 +88,10 @@ foreach ($i in $originRecords.GetEnumerator()) {
 
 # needed a special ordered hashtable
 $aliasRecords = New-Object System.Collections.Specialized.OrderedDictionary
-$aliasRecords.add('Primary','web1-west-origin.ibuildirun.com.')
-$aliasRecords.add('Secondary','web2-west-origin.ibuildirun.com.')
-$aliasRecords.add('tertiary','web1-east-origin.ibuildirun.com.')
-$aliasRecords.add('www','Primary.ibuildirun.com.')
+$aliasRecords.add('r53test-Primary','r53test-web1.rockportapp.com.')
+$aliasRecords.add('r53test-Secondary','r53test-web2.rockportapp.com.')
+$aliasRecords.add('r53test-tertiary','r53test-web3.rockportapp.com.')
+$aliasRecords.add('r53test','r53test-Primary.rockportapp.com.com.')
 
 foreach ($i in $aliasRecords.GetEnumerator()) {
   Write-Host
@@ -102,9 +104,8 @@ foreach ($i in $aliasRecords.GetEnumerator()) {
 }
 
 # manually route traffic to a fail over server
-$aliasSplat['Value'] = 'Secondary'
-$aliasSplat['Name'] = 'www'
+$aliasSplat['Value'] = 'r53test-Secondary'
+$aliasSplat['Name'] = 'r53test'
 $aliasSplat
 .\Manage-R53RecordSet.ps1 @aliasSplat -Verbose  
-
 
