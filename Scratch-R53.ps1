@@ -1,9 +1,6 @@
 ﻿# route53
 
 
-
-
-
 # tell what domain name you want, include the root dot (example: ibuildirun.com.)
 $zoneName = ".rockportapp.com."
 $zoneId = Get-R53HostedZoneList |  Where-Object {$_.Name -eq $zoneName}
@@ -104,8 +101,8 @@ foreach ($i in $aliasRecords.GetEnumerator()) {
 }
 
 # manually route traffic to a fail over server
-$aliasSplat['Value'] = 'r53test-Secondary'
 $aliasSplat['Name'] = 'r53test'
+$aliasSplat['Value'] = 'r53test-Secondary'
 $aliasSplat
 .\Manage-R53RecordSet.ps1 @aliasSplat -Verbose  
 
