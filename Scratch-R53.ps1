@@ -1,6 +1,5 @@
 ﻿# route53
 
-
 # tell what domain name you want, include the root dot (example: ibuildirun.com.)
 $zoneName = ".rockportapp.com."
 $zoneId = Get-R53HostedZoneList |  Where-Object {$_.Name -eq $zoneName}
