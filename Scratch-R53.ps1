@@ -1,7 +1,7 @@
 ﻿# route53
 
 # tell what domain name you want, include the root dot (example: ibuildirun.com.)
-$zoneName = ".rockportapp.com."
+$zoneName = "ibuildirun.com."
 $zoneId = Get-R53HostedZoneList |  Where-Object {$_.Name -eq $zoneName}
 $zoneId | get-member
 $strZoneId = $zoneId.Id.ToString().Replace('/hostedzone/', '')
@@ -9,7 +9,7 @@ $strZoneId
 
 
 $rRecords = Get-R53ResourceRecordSet -HostedZoneId $strZoneId
-$rRecord = $rRecords.ResourceRecordSets | Where-Object { $_.Name -eq '{r53test.rockportapp.com.' }
+$rRecord = $rRecords.ResourceRecordSets | Where-Object { $_.Name -eq '{web2-west-origin.ibuildirun.com.' }
 $rRecord.SetIdentifier
 
 # test with the alias object

@@ -36,7 +36,7 @@ Param(
   [Amazon.Route53.Model.GeoLocation] $GeoLocation,
 
   [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)]
-  [Long] $Ttl = "300",
+  [Long] $Ttl,
 
   [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)]
   [Bool] $EvaluateTargetHealth = $false,
